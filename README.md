@@ -84,3 +84,29 @@ The [Getting Started](https://vaadin.com/docs/latest/getting-started) guide will
 App implementation. You'll learn how to set up your development environment, understand the project 
 structure, and find resources to help you add muscles to your skeleton — transforming it into a fully-featured 
 application.
+
+## Pipeline de Build (CI/CD)
+
+Este projeto possui um workflow de CI/CD configurado no GitHub Actions.  
+Ele automatiza a criação de um ficheiro JAR executável da aplicação sempre que há um push na branch principal.
+
+**Funcionalidades da pipeline:**
+- Configura o ambiente Java (versão 21);
+- Executa `mvn clean package` para gerar o JAR;
+- Publica o JAR como artefacto no GitHub Actions;
+- (Opcional) Copia o JAR para a raiz do repositório (`app.jar`) para acesso direto.
+
+**Excerto do build.yml:**
+```yaml
+- name: Build with Maven
+  run: mvn clean package
+
+- name: Copy JAR to root
+  run: cp target/*.jar ./app.jar
+
+- name: Upload JAR
+  uses: actions/upload-artifact@v3
+  with:
+    name: my-app-jar
+    path: app.jar
+```
