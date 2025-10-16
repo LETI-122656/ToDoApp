@@ -83,7 +83,7 @@ public class PDFView extends Main {
             byte[] pdf;
 
             if (all) {
-                tasks = taskService.list(PageRequest.of(0, 1000));
+                tasks = taskService.list(PageRequest.of(0, 1000)).getContent();
                 if (tasks.isEmpty()) {
                     showWarn("Não existem tarefas para exportar.");
                     return;
