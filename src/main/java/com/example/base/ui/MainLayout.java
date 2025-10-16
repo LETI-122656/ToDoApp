@@ -1,6 +1,9 @@
 package com.example.base.ui;
 
+import com.example.util.QRCodeGenerator;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -8,22 +11,20 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
-import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.menu.MenuConfiguration;
 import com.vaadin.flow.server.menu.MenuEntry;
 
 import static com.vaadin.flow.theme.lumo.LumoUtility.*;
 
-@Layout
+@com.vaadin.flow.router.Layout
 public final class MainLayout extends AppLayout {
 
-    MainLayout() {
+    public MainLayout() {
         setPrimarySection(Section.DRAWER);
-        addToDrawer(createHeader(), new Scroller(createSideNav()));
+        addToDrawer(createHeader(), new Scroller(createDrawerContent()));
     }
 
     private Div createHeader() {
-        // TODO Replace with real application logo and name
         var appLogo = VaadinIcon.CUBES.create();
         appLogo.addClassNames(TextColor.PRIMARY, IconSize.LARGE);
 
@@ -35,11 +36,20 @@ public final class MainLayout extends AppLayout {
         return header;
     }
 
-    private SideNav createSideNav() {
-        var nav = new SideNav();
+    private Div createDrawerContent() {
+        // Container holding SideNav + QR button
+        Div container = new Div();
+
+        // 1️⃣ SideNav with normal menu items
+        SideNav nav = new SideNav();
         nav.addClassNames(Margin.Horizontal.MEDIUM);
         MenuConfiguration.getMenuEntries().forEach(entry -> nav.addItem(createSideNavItem(entry)));
-        return nav;
+
+        container.add(nav);
+
+
+
+        return container;
     }
 
     private SideNavItem createSideNavItem(MenuEntry menuEntry) {
