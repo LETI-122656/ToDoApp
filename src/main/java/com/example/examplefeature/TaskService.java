@@ -1,36 +1,33 @@
 package com.example.examplefeature;
 
-import org.jspecify.annotations.Nullable;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class TaskService {
 
-    private final TaskRepository taskRepository;
+    private final TaskRepository repository;
 
-    TaskService(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
+    public TaskService(TaskRepository repository) {
+        this.repository = repository;
     }
 
-    @Transactional
-    public void createTask(String description, @Nullable LocalDate dueDate) {
-        if ("fail".equals(description)) {
-            throw new RuntimeException("This is for testing the error handler");
+    public List<Task> findAll() {
+        return repository.findAll();
+    }
+
+    public void createTask(String description, java.time.LocalDate dueDate) {
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Descrição não pode estar vazia");
         }
-        var task = new Task(description, Instant.now());
+
+        Task task = new Task(description, java.time.Instant.now());
         task.setDueDate(dueDate);
-        taskRepository.saveAndFlush(task);
+        repository.save(task);
     }
 
-    @Transactional(readOnly = true)
-    public List<Task> list(Pageable pageable) {
-        return taskRepository.findAllBy(pageable).toList();
+    public org.springframework.data.domain.Page<Task> list(org.springframework.data.domain.Pageable pageable) {
+        return repository.findAll(pageable);
     }
-
 }

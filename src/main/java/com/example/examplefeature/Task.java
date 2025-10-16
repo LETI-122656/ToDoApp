@@ -2,7 +2,6 @@ package com.example.examplefeature;
 
 import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;
-
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -27,7 +26,10 @@ public class Task {
     @Nullable
     private LocalDate dueDate;
 
-    protected Task() { // To keep Hibernate happy
+    protected Task() {
+        // Hibernate exige construtor vazio
+        // Aqui garantimos que a data de criação nunca será nula
+        this.creationDate = Instant.now();
     }
 
     public Task(String description, Instant creationDate) {
@@ -54,6 +56,10 @@ public class Task {
         return creationDate;
     }
 
+    public void setCreationDate(Instant creationDate) {
+        this.creationDate = creationDate;
+    }
+
     public @Nullable LocalDate getDueDate() {
         return dueDate;
     }
@@ -77,10 +83,6 @@ public class Task {
 
     @Override
     public int hashCode() {
-        // Hashcode should never change during the lifetime of an object. Because of
-        // this we can't use getId() to calculate the hashcode. Unless you have sets
-        // with lots of entities in them, returning the same hashcode should not be a
-        // problem.
         return getClass().hashCode();
     }
 }
