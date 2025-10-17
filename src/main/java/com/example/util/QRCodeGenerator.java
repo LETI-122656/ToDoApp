@@ -35,6 +35,7 @@ public class QRCodeGenerator {
      */
     public static void showQRCode(String text, int size) {
         byte[] pngData;
+
         // generate PNG bytes
         try (ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream()) {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
@@ -42,26 +43,47 @@ public class QRCodeGenerator {
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
             pngData = pngOutputStream.toByteArray();
         } catch (WriterException e) {
-            Notification.show("Failed to generate QR code (encoding error): " + e.getMessage(), 5000, Notification.Position.MIDDLE);
+            Notification.show("Failed to generate QR code (encoding error): " + e.getMessage(),
+                    5000, Notification.Position.MIDDLE);
             return;
         } catch (IOException e) {
-            Notification.show("Failed to generate QR code (IO error): " + e.getMessage(), 5000, Notification.Position.MIDDLE);
+            Notification.show("Failed to generate QR code (IO error): " + e.getMessage(),
+                    5000, Notification.Position.MIDDLE);
             return;
         }
 
-        // Create Vaadin StreamResource from PNG bytes
-        StreamResource resource = new StreamResource("qrcode.png", () -> new ByteArrayInputStream(pngData));
-        Image qrImage = new Image(resource, "QR Code");
-        qrImage.setAlt("QR code image");
+        // Convert PNG bytes to base64 for both display and download
+        String base64 = java.util.Base64.getEncoder().encodeToString(pngData);
+        String dataUrl = "data:image/png;base64," + base64;
 
-        // Build dialog and open it (create dialog before referencing it)
+        // Create image component
+        Image qrImage = new Image(dataUrl, "QR Code");
+        qrImage.setWidth("250px");
+        qrImage.setHeight("250px");
+
+        // Create dialog
         Dialog dialog = new Dialog();
         dialog.setModal(true);
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(true);
 
-        Button close = new Button("Close", e -> dialog.close());
-        VerticalLayout layout = new VerticalLayout(qrImage, close);
+        // Download button using base64 data URL
+        Button downloadBtn = new Button("Download QR", e -> {
+            com.vaadin.flow.component.UI.getCurrent().getPage().executeJs(
+                    "const link = document.createElement('a');" +
+                            "link.href = $0;" +
+                            "link.download = $1;" +
+                            "document.body.appendChild(link);" +
+                            "link.click();" +
+                            "document.body.removeChild(link);",
+                    dataUrl, "TaskQR.png"
+            );
+        });
+
+        // Close button
+        Button closeBtn = new Button("Close", e -> dialog.close());
+
+        VerticalLayout layout = new VerticalLayout(qrImage, downloadBtn, closeBtn);
         layout.setPadding(true);
         layout.setSpacing(true);
 
