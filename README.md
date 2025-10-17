@@ -1,38 +1,6 @@
 # App README
 
-- [ ] TODO Replace or update this README with instructions relevant to your application
-
 ## Project Structure
-
-The sources of your App have the following structure:
-
-```
-src
-├── main/frontend
-│   └── themes
-│       └── default
-│           ├── styles.css
-│           └── theme.json
-├── main/java
-│   └── [application package]
-│       ├── base
-│       │   └── ui
-│       │       ├── component
-│       │       │   └── ViewToolbar.java
-│       │       ├── MainErrorHandler.java
-│       │       └── MainLayout.java
-│       ├── examplefeature
-│       │   ├── ui
-│       │   │   └── TaskListView.java
-│       │   ├── Task.java
-│       │   ├── TaskRepository.java
-│       │   └── TaskService.java                
-│       └── Application.java       
-└── test/java
-    └── [application package]
-        └── examplefeature
-           └── TaskServiceTest.java                 
-```
 
 The main entry point into the application is `Application.java`. This class contains the `main()` method that start up 
 the Spring Boot application.
@@ -85,6 +53,12 @@ App implementation. You'll learn how to set up your development environment, und
 structure, and find resources to help you add muscles to your skeleton — transforming it into a fully-featured 
 application.
 
+## Features
+- Lista de tarefas
+- Conversão de moeda
+- Gerar QR code para tarefas (requer setup do domínio raíz do projeto no ficheiro `application.properties`)
+- Enviar tarefa por email (requer setup do email remetente no ficheiro `application.properties`)
+
 ## Pipeline de Build (CI/CD)
 
 Este projeto possui um workflow de CI/CD configurado no GitHub Actions.  
@@ -93,8 +67,10 @@ Ele automatiza a criação de um ficheiro JAR executável da aplicação sempre 
 **Funcionalidades da pipeline:**
 - Configura o ambiente Java (versão 21);
 - Executa `mvn clean package` para gerar o JAR;
+- Copia o JAR para a raiz do workspace (`app.jar`) para acesso direto no workflow;
 - Publica o JAR como artefacto no GitHub Actions;
-- (Opcional) Copia o JAR para a raiz do repositório (`app.jar`) para acesso direto.
+
+Nota: o app.jar não é commitado para a raiz do repositório, isto iria adicionar um ficheiro binário grande ao histórico do Git, o que não é recomendado. O JAR fica disponível apenas como artefacto do workflow no GitHub Actions, acessível na interface web na secção "Artifacts".
 
 **Excerto do build.yml:**
 ```yaml
@@ -105,7 +81,7 @@ Ele automatiza a criação de um ficheiro JAR executável da aplicação sempre 
   run: cp target/*.jar ./app.jar
 
 - name: Upload JAR
-  uses: actions/upload-artifact@v3
+  uses: actions/upload-artifact@v4
   with:
     name: my-app-jar
     path: app.jar
