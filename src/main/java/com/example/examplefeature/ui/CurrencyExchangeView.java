@@ -100,18 +100,18 @@ public class CurrencyExchangeView extends Main {
 
     private void convert() {
         try {
-            String src = from.getValue();
-            String dst = to.getValue();
-            BigDecimal qty = BigDecimal.valueOf(amount.getValue()).setScale(4, RoundingMode.HALF_UP);
+            String sourceCurrency = from.getValue();
+            String targetCurrency = to.getValue();
+            BigDecimal amt = BigDecimal.valueOf(amount.getValue()).setScale(4, RoundingMode.HALF_UP);
 
-            BigDecimal converted = service.convert(qty, src, dst);
-            resultLabel.setText(qty.stripTrailingZeros() + " " + src + " ≈ " + converted + " " + dst);
+            BigDecimal converted = service.convert(amt, sourceCurrency, targetCurrency);
+            resultLabel.setText(amt + " " + sourceCurrency + " ≈ " + converted + " " + targetCurrency);
 
             List<Row> rows = CODES.stream()
                     .map(code -> new Row(
                             code,
-                            service.rate(src, code),
-                            service.convert(qty, src, code)
+                            service.rate(sourceCurrency, code),
+                            service.convert(amt, code, targetCurrency)
                     ))
                     .collect(Collectors.toList());
             table.setItems(rows);
