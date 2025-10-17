@@ -1,0 +1,32 @@
+name: Build Java Project
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Copy JAR to root
+        run: cp target/*.jar ./app.jar
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-app-jar
+          path: app.jar
