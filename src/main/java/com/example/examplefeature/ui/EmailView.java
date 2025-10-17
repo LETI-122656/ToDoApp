@@ -59,7 +59,7 @@ public class EmailView extends Main {
         enviarBtn.addClickListener(e -> enviarEmail());
 
         // Toolbar no topo da página
-        var toolbar = new ViewToolbar("Enviar Tarefa por Email",
+        var toolbar = new ViewToolbar("Seleciona a tarefa a enviar",
                 ViewToolbar.group(destinatario, enviarBtn));
         add(toolbar);
 
