@@ -1,4 +1,4 @@
-name: Main Workflow
+name: Run SonarQube
 
 on:
   push:
@@ -9,13 +9,11 @@ jobs:
   build-and-sonarqube:
     runs-on: ubuntu-latest
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # needed for accurate Sonar analysis
+          fetch-depth: 0
 
-      # 2️⃣ Set up Java 17
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -23,11 +21,9 @@ jobs:
           java-version: '17'
           cache: maven
 
-      # 3️⃣ Build project with Maven
       - name: Build project
         run: mvn clean verify
 
-      # 4️⃣ Run SonarCloud analysis via Maven
       - name: SonarCloud Scan
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
               -Dsonar.projectKey=LETI-122656_ToDoApp \
@@ -35,7 +31,6 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
-      # 5️⃣ Check SonarCloud Quality Gate status
       - name: SonarCloud Quality Gate check
         id: sonarqube-quality-gate-check
         uses: sonarsource/sonarqube-quality-gate-action@master
@@ -44,6 +39,5 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # 6️⃣ Optional: show Quality Gate result
-      - name: Show SonarCloud Quality Gate Status
+      - name: Show Quality Gate Status
         run: echo "Quality Gate status: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
