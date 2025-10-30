@@ -1,32 +1,42 @@
+name: Main Workflow
+
 on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened]
-
-name: Main Workflow
 
 jobs:
-  sonarqube:
+  build-and-sonarqube:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # 1️⃣ Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # recommended for accurate analysis
+          fetch-depth: 0  # needed for accurate Sonar analysis
 
-      # --- SonarQube Scan ---
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # 2️⃣ Set up Java 17
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          args: >
-            -Dsonar.projectKey=LETI-122656_ToDoApp
-            -Dsonar.organization=leti-122656
+          distribution: 'temurin'
+          java-version: '17'
+          cache: maven
 
-      # --- Quality Gate check ---
-      - name: SonarQube Quality Gate check
+      # 3️⃣ Build project with Maven
+      - name: Build project
+        run: mvn clean verify
+
+      # 4️⃣ Run SonarCloud analysis via Maven
+      - name: SonarCloud Scan
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+              -Dsonar.projectKey=LETI-122656_ToDoApp \
+              -Dsonar.organization=leti-122656 \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+      # 5️⃣ Check SonarCloud Quality Gate status
+      - name: SonarCloud Quality Gate check
         id: sonarqube-quality-gate-check
         uses: sonarsource/sonarqube-quality-gate-action@master
         with:
@@ -34,5 +44,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: "Example show SonarQube Quality Gate Status value"
-        run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+      # 6️⃣ Optional: show Quality Gate result
+      - name: Show SonarCloud Quality Gate Status
+        run: echo "Quality Gate status: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
